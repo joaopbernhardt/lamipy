@@ -44,18 +44,19 @@ def calc_stressCLT(mat_list, lam, F):
     curvatures = strain_vector [3:6]
 
     # Initializes Laminate System (LS) strain vectors (inferior and superior)
-    LS_strain_inf = LS_strain_sup = numpy.zeros((3, num))
+    LS_strain_inf = numpy.zeros((3, num))
+    LS_strain_sup = numpy.zeros((3, num))
 
     # Assign Laminate System strain (Epsilon = Epsilon0 + kappa*z)
     for i in range(num):
         LS_strain_inf[:3,i] = strains + curvatures*Z[i]
         LS_strain_sup[:3,i] = strains + curvatures*Z[i+1]
 
-    # Initialize Material System strain vectors (inferior and superior)
-    MS_strain_inf = MS_strain_sup = numpy.zeros((3, num))
-
-    # Initializes Material System stress vectors (inferior and superior)
-    MS_stress_inf = MS_stress_sup = numpy.zeros((3, num))
+    # Initialize Material System stress & strain vectors (inferior and superior)
+    MS_strain_inf = numpy.zeros((3, num))
+    MS_strain_sup = numpy.zeros((3, num))
+    MS_stress_inf = numpy.zeros((3, num))
+    MS_stress_sup = numpy.zeros((3, num))
 
     # Calculates Material System stresses and strains
     for i in range(num):

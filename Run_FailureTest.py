@@ -41,12 +41,12 @@ def Test_A():
     lam["ang"].extend((45, -45, 45, -45, 45, -45, -45, 45, -45, 45, -45, 45))
 
     # Vector F with the applied generalized stress (unit N/m / N.m/m)
-    F = [   2277,   # Nx
-            284.6,   # Ny
-            0e6,   # Nxy
+    F = [   0e4,   # Nx
+            0e4,   # Ny
+            0e5,   # Nxy
             0e6,   # Mx
             0e6,   # My
-            0e6]   # Mxy
+            5e6]   # Mxy
 
     # Calculates stresses and strains based on CLT.
     # res = calculated results holder;
@@ -54,10 +54,10 @@ def Test_A():
     # inf = inferior; sup = superior.
     res = CLT.calc_stressCLT(mat, lam, F)
 
-    sfTsaiWu    = FC.tsaiwu_2D(mat, 
-                               lam, 
-                               res["MCS"]["stress"]["inf"],
-                               res["MCS"]["stress"]["sup"])
+    sfTsaiWu    = FC.tsaiwu_2D(   mat, 
+                                  lam, 
+                                  res["MCS"]["stress"]["inf"],
+                                  res["MCS"]["stress"]["sup"])
     
     sfMaxStress = FC.maxstress_2D(mat, 
                                   lam, 
@@ -68,5 +68,12 @@ def Test_A():
                                   lam, 
                                   res["MCS"]["strain"]["inf"], 
                                   res["MCS"]["strain"]["sup"])
+
+    sfHashin = FC.hashin_2D(      mat, 
+                                  lam, 
+                                  res["MCS"]["stress"]["inf"], 
+                                  res["MCS"]["stress"]["sup"])
+
+    pass
 
 Test_A()
