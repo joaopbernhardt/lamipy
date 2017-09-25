@@ -40,7 +40,7 @@ def Test_A():
         lam["mat_id"].append(0)
     lam["ang"].extend((45, -45, 45, -45, 45, -45, -45, 45, -45, 45, -45, 45))
 
-    # Vector F with the applied generalized stress (unit N/m2 / N.m/m2)
+    # Vector F with the applied generalized stress (unit N/m / N.m/m)
     F = [   2277,   # Nx
             284.6,   # Ny
             0e6,   # Nxy
