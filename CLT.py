@@ -4,21 +4,23 @@
     CLT.py - Module containing functions for stress&strain calculations 
     according to the CLASSICAL LAMINATE THEORY. 
 
-    version_0.1: Joao Paulo Bernhardt - September 2017
+    Joao Paulo Bernhardt - September 2017
 """
 
 import numpy
 
-def calc_stressCLT(mat_list, lam, F):
+def calc_stressCLT(mat_list, lam, F, fail_list = None):
 # FUNCTION  | calc_stressCLT
 #           | Calculate stress and strain vectors according to the  
 #           | Classical Laminate Theory, at the top and bottom of each layer.
-# INPUTs	| mat_list - list with dictionaries of material properties.
+#
+# INPUTs    | mat_list - list with dictionaries of material properties.
 #           | lam - laminate composition - contains dictionary of 
 #           |       thicknesses, angles and material ids.
-#			|  F - 'Force' vector (generalized stress vector) 
+#           |  F - 'Force' vector (generalized stress vector) 
 #           |       contains applied loads on the composite.
-# OUTPUTs	| dictionary with stresses (on the material coord. system) 
+#
+# OUTPUTs   | dictionary with stresses (on the material coord. system) 
 #           | and strains (material & laminate coord. system.)
 
     # Get number of layers
@@ -33,7 +35,7 @@ def calc_stressCLT(mat_list, lam, F):
         Z[i + 1] = Z[i] + lam["thk"][i]
 
     # Calculates stiffness matrix based on laminate properties.
-    ABD = assemble_ABD(mat_list, lam, Z)
+    ABD = assemble_ABD(mat_list, lam, Z, fail_list)
 
     # Calculates strain vector by solving eq. form AX = B
     strain_vector = numpy.linalg.solve(ABD, F)
@@ -61,7 +63,14 @@ def calc_stressCLT(mat_list, lam, F):
     # Calculates Material System stresses and strains
     for i in range(num):
         mat_id = lam["mat_id"][i]
-        Q = assemble_matrixQ(mat_list[mat_id])
+        mat_prop = mat_list[mat_id]
+        
+        # Checks if there's failure list
+        if isinstance(fail_list, list):
+            Q = assemble_matrixQ(mat_prop, fail_list[i])
+        else:
+            Q = assemble_matrixQ(mat_prop)
+        
         T = assemble_matrixT(lam["ang"][i])
         MS_strain_sup[:,i] = numpy.dot(T, LS_strain_sup[:,i])
         MS_strain_inf[:,i] = numpy.dot(T, LS_strain_inf[:,i])
@@ -81,22 +90,37 @@ def calc_stressCLT(mat_list, lam, F):
 
 ##### BELOW: Auxiliary functions for the calculation of stresses and strains
 
-def assemble_matrixQ (mat_prop):
+def assemble_matrixQ (mat_prop, fail_type = None):
 # FUNCTION  | assemble_matrixQ
-# INPUTs	| mat_prop - material properties arranged in a dictionary.
-# OUTPUTs	| Q - reduced elastic matrix
+# INPUTs    | mat_prop - material properties arranged in a dictionary.
+# OUTPUTs   | Q - reduced elastic matrix
 
-    n21 = mat_prop["n12"]*mat_prop["E2"]/mat_prop["E1"]
+    # Degradation Factor (for failed layers)
+    df = 0.001
+
+    if fail_type == "fiber" or fail_type == "shear":
+        E1  = mat_prop["E1"]*df
+        E2  = mat_prop["E2"]*df
+        n12 = mat_prop["n12"]*df
+        G12 = mat_prop["G12"]*df
+        n21 = n12*E2/E1
+    elif fail_type == "matrix":
+        E1  = mat_prop["E1"]
+        E2  = mat_prop["E2"]*df
+        n12 = mat_prop["n12"]*df
+        G12 = mat_prop["G12"]*df
+        n21 = n12*E2/E1
+    else:
+        E1  = mat_prop["E1"]
+        E2  = mat_prop["E2"]
+        n12 = mat_prop["n12"]
+        G12 = mat_prop["G12"]
+        n21 = n12*E2/E1
     
-    Q11 = mat_prop["E1"]/(1 - mat_prop["n12"]*n21)    
-    # The Q11 equation below produces less precise results (~1% difference)
-    #Q11 = mat_prop["E1"]**2 / (mat_prop["E1"] - mat_prop["n12"] * mat_prop["E2"])
-    
-    Q12 = (mat_prop["n12"]*mat_prop["E1"]*mat_prop["E2"] 
-          / (mat_prop["E1"] - (mat_prop["n12"] ** 2) * mat_prop["E2"]))
-    Q22 = (mat_prop["E1"]*mat_prop["E2"] / (mat_prop["E1"] 
-          - (mat_prop["n12"] ** 2)*mat_prop["E2"]))
-    Q66 = mat_prop["G12"]
+    Q11 = E1/(1 - n12*n21)        
+    Q12 = n12*E1*E2 / (E1 - (n12 ** 2) * E2)
+    Q22 = E1*E2 / (E1 - (n12 ** 2) * E2)
+    Q66 = G12
 
     Q = numpy.zeros((3, 3))
     Q = [[Q11, Q12, 0],
@@ -108,8 +132,8 @@ def assemble_matrixQ (mat_prop):
 def assemble_matrixT(angle):
 # FUNCTION  | assemble_matrixT
 #           | Transforms from Laminate Coord. Sys. to Material C. Sys.
-# INPUTs	| angle (degrees) - layup angle of the layer
-# OUTPUTs	| T - transformation matrix from
+# INPUTs    | angle (degrees) - layup angle of the layer
+# OUTPUTs   | T - transformation matrix from
 
     #Transforms angle (degrees) to angle (radians)
     angle = numpy.pi*angle/180
@@ -127,13 +151,15 @@ def assemble_matrixT(angle):
     return T
 
 
-def assemble_ABD(mat_list, lam, Z):
+def assemble_ABD(mat_list, lam, Z, fail_list = None):
 # FUNCTION  | assemble_ABD
-# INPUTs	| mat_list - list with dictionaries of material properties.
-# 			| lam - laminate composition - contains dictionary of 
+#
+# INPUTs    | mat_list - list with dictionaries of material properties.
+#           | lam - laminate composition - contains dictionary of 
 #           |       thicknesses, angles and material ids.
-#			| Z - vector containing z-coordinates
-# OUTPUTs	| ABD - laminate stiffness matrix
+#           | Z - vector containing z-coordinates
+#
+# OUTPUTs   | ABD - laminate stiffness matrix
 
     num = len(lam["ang"])
     A = B = D = numpy.zeros((3,3))
@@ -144,10 +170,14 @@ def assemble_ABD(mat_list, lam, Z):
         ang = lam["ang"][i]        
 
         T = assemble_matrixT(ang)
-        Q = assemble_matrixQ(mat_prop)
         Ti = numpy.transpose(T)
-        
-        #Qi = Ti*Q*T
+
+        # Checks if there's failure list
+        if isinstance(fail_list, list):
+            Q = assemble_matrixQ(mat_prop, fail_list[i])
+        else:
+            Q = assemble_matrixQ(mat_prop)
+
         Qi = numpy.matmul(numpy.matmul(Ti, Q), T)
 
         A = A + Qi*(Z[i+1] - Z[i])

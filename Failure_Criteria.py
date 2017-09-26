@@ -1,18 +1,22 @@
 """
-Functions for determining failure state of a laminate based on different criteria.
+    lamipy project - laminated composites calculations in Python.
 
+    Failure_Criteria.py - Module containing functions for calculating
+    					  safety factors according to different criteria.
 
-Joao Paulo Bernhardt - September 2017
+    Joao Paulo Bernhardt - September 2017
 """
 
 
 def tsaiwu_2D(mat_list, lam, stress_inf, stress_sup):
-# FUNCTION  | tsaiwu_2D & fs_tsaiwu_2D - Calculates safety factor based on Tsai-Wu 2D Criterion.
-# INPUTs	| mat_list - list with dictionaries of material properties.
-# 			| lam - laminate composition - contains dictionary of thicknesses, angles and material ids.
-#			| stress_inf - vector containing stresses (sig1, sig2, tau) at the bottom of a layer.
-#			| stress_sup - vector containing stresses (sig1, sig2, tau) at the top of a layer.
-# OUTPUTs	| fs - vector containing 2 columns: safety factor (inferior) and safety factor (superior).
+# FUNCTION   | tsaiwu_2D & fs_tsaiwu_2D - Calculates safety factor based on Tsai-Wu 2D Criterion.
+#
+# INPUTs     | mat_list - list with dictionaries of material properties.
+#            | lam - laminate composition - contains dictionary of thicknesses, angles and material ids.
+#            | stress_inf - vector containing stresses (sig1, sig2, tau) at the bottom of a layer.
+#            | stress_sup - vector containing stresses (sig1, sig2, tau) at the top of a layer.
+#
+# OUTPUTs    | fs - vector containing 2 columns: safety factor (inferior) and safety factor (superior).
 
     # Get number of layers
     num = len(lam["ang"])
@@ -25,14 +29,14 @@ def tsaiwu_2D(mat_list, lam, stress_inf, stress_sup):
         sig1_sup = stress_sup[0][i]
         sig2_sup = stress_sup[1][i]
         tau_sup = stress_sup[2][i]
-        fs_sup = fs_tsaiwu_2D(mat_prop, sig1_sup, sig2_sup, tau_sup)
-        fs["fs_sup"].append(fs_sup)
+        [fs_sup, mode_sup] = fs_tsaiwu_2D(mat_prop, sig1_sup, sig2_sup, tau_sup)
+        fs["fs_sup"].append([fs_sup, mode_sup])
 
         sig1_inf = stress_inf[0][i]
         sig2_inf = stress_inf[1][i]
         tau_inf = stress_inf[2][i]
-        fs_inf = fs_tsaiwu_2D(mat_prop, sig1_inf, sig2_inf, tau_inf)
-        fs["fs_inf"].append(fs_inf)
+        [fs_inf, mode_inf] = fs_tsaiwu_2D(mat_prop, sig1_inf, sig2_inf, tau_inf)
+        fs["fs_inf"].append([fs_inf, mode_inf])
 
     return fs
 
@@ -55,17 +59,34 @@ def fs_tsaiwu_2D(mat_prop, sig1, sig2, tau):
     a = f11*sig1**2 + f22*sig2**2 + f66*tau**2 + 2*f12*sig1*sig2
     b = f1*sig1 + f2*sig2;
 
-    return (-b + (b**2 + 4*a)**(1/2))/(2*a)
+    sf = (-b + (b**2 + 4*a)**(1/2))/(2*a)
+
+    # Failure mode calculations  
+    H1 = abs(f1*sig1 + f11*sig1**2)
+    H2 = abs(f2*sig2 + f22*sig2**2)
+    H6 = abs(f66*tau**2)
+ 
+    if max(H1,H2,H6) == H1:
+        mode = "fiber"        # fiber failure
+    elif max(H1,H2,H6) == H2:
+        mode = "matrix"        # matrix failure
+    else:
+        mode = "shear"        # shear failure
+    
+    # Returns SF & mode    
+    return [sf, mode]
 
 #########################################################################
 
 def maxstress_2D(mat_list, lam, stress_inf, stress_sup):
-# FUNCTION  | maxstress_2D & fs_maxstress_2D - Calculates safety factor based on Maximum Stress 2D Criterion.
-# INPUTs	| mat_list - list with dictionaries of material properties.
-# 			| lam - laminate composition - contains dictionary of thicknesses, angles and material ids.
-#			| stress_inf - vector containing stresses (sig1, sig2, tau) at the bottom of a layer.
-#			| stress_sup - vector containing stresses (sig1, sig2, tau) at the top of a layer.
-# OUTPUTs	| fs - vector containing 2 columns: safety factor (inferior) and safety factor (superior).
+# FUNCTION   | maxstress_2D & fs_maxstress_2D - Calculates safety factor based on Maximum Stress 2D Criterion.
+#
+# INPUTs     | mat_list - list with dictionaries of material properties.
+#            | lam - laminate composition - contains dictionary of thicknesses, angles and material ids.
+#            | stress_inf - vector containing stresses (sig1, sig2, tau) at the bottom of a layer.
+#            | stress_sup - vector containing stresses (sig1, sig2, tau) at the top of a layer.
+#
+# OUTPUTs    | fs - vector containing 2 columns: safety factor (inferior) and safety factor (superior).
 
     # Get number of layers
     num = len(lam["ang"])
@@ -78,14 +99,20 @@ def maxstress_2D(mat_list, lam, stress_inf, stress_sup):
         sig1_sup = stress_sup[0][i]
         sig2_sup = stress_sup[1][i]
         tau_sup = stress_sup[2][i]
-        fs_sup = fs_maxstress_2D(mat_prop, sig1_sup, sig2_sup, tau_sup)
-        fs["fs_sup"].append(fs_sup)
+        [fs_sup, mode_sup] = fs_maxstress_2D(mat_prop, 
+        									 sig1_sup, 
+        									 sig2_sup, 
+        									 tau_sup)
+        fs["fs_sup"].append([fs_sup, mode_sup])
 
         sig1_inf = stress_inf[0][i]
         sig2_inf = stress_inf[1][i]
         tau_inf = stress_inf[2][i]
-        fs_inf = fs_maxstress_2D(mat_prop, sig1_inf, sig2_inf, tau_inf)
-        fs["fs_inf"].append(fs_inf)
+        [fs_inf, mode_inf] = fs_maxstress_2D(mat_prop,
+        									 sig1_inf, 
+        									 sig2_inf, 
+        									 tau_inf)
+        fs["fs_inf"].append([fs_inf, mode_inf])
 
     return fs
 
@@ -101,31 +128,50 @@ def fs_maxstress_2D(mat_prop, sig1, sig2, tau):
 
     # Verify for sig1
     if sig1 > 0:
-        f_t = (sig1/Xt)
+        f_1 = (sig1/Xt)
     else:
-        f_t = (sig1/-Xc)
+        f_1 = (sig1/-Xc)
 
     # Verify for sig2
     if sig2 > 0:
-         f_c = (sig2/Yt)
+         f_2 = (sig2/Yt)
     else:
-        f_c = (sig2/-Yc)
+        f_2 = (sig2/-Yc)
 
     # Verify for shear
     f_s = abs(tau)/S21
 
+    f_max = max(f_1, f_2, f_s)
+
+    # Find failure mode
+    if f_max == f_1: 
+    	mode = "fiber"
+    elif f_max == f_2:
+    	mode = "matrix"
+    else:
+    	mode = "shear"
+
+    sf = 1/f_max
+
     # Result FS (1 / maximum of the 3 above)
-    return 1/max(f_t, f_c, f_s)
+    return [sf, mode]
 
 #########################################################################
 
 def maxstrain_2D(mat_list, lam, strain_inf, strain_sup):
-# FUNCTION  | maxstrain_2D & fs_maxstrain_2D - Calculates safety factor based on Maximum Strain 2D Criterion.
-# INPUTs	| mat_list - list with dictionaries of material properties.
-# 			| lam - laminate composition - contains dictionary of thicknesses, angles and material ids.
-#			| strain_inf - vector containing strains (eps1, eps2, gamma) at the bottom of a layer.
-#			| strain_sup - vector containing strains (eps1, eps2, gamma) at the top of a layer.
-# OUTPUTs	| fs - vector containing 2 columns: safety factor (inferior) and safety factor (superior).
+# FUNCTION   | maxstrain_2D & fs_maxstrain_2D - Calculates safety factor based
+#            | on Maximum Strain 2D Criterion.
+#
+# INPUTs     | mat_list - list with dictionaries of material properties.
+#            | lam - laminate composition - contains dictionary of thicknesses,
+#            | angles and material ids.
+#            | strain_inf - vector containing strains (eps1, eps2, gamma) at 
+#            | the bottom of a layer.
+#            | strain_sup - vector containing strains (eps1, eps2, gamma) at 
+#            | the top of a layer.
+#
+# OUTPUTs    | fs - vector containing 2 columns: safety factor (inferior) and 
+#              safety factor (superior).
 
     # Get number of layers
     num = len(lam["ang"])
@@ -138,14 +184,20 @@ def maxstrain_2D(mat_list, lam, strain_inf, strain_sup):
         eps1_sup = strain_sup[0][i]
         eps2_sup = strain_sup[1][i]
         gamma_sup = strain_sup[2][i]
-        fs_sup = fs_maxstrain_2D(mat_prop, eps1_sup, eps2_sup, gamma_sup)
-        fs["fs_sup"].append(fs_sup)
+        [fs_sup, mode_sup] = fs_maxstrain_2D(mat_prop, 
+        									 eps1_sup, 
+        									 eps2_sup, 
+        									 gamma_sup)
+        fs["fs_sup"].append([fs_sup, mode_sup])
 
         eps1_inf = strain_inf[0][i]
         eps2_inf = strain_inf[1][i]
         gamma_inf = strain_inf[2][i]
-        fs_inf = fs_maxstrain_2D(mat_prop, eps1_inf, eps2_inf, gamma_inf)
-        fs["fs_inf"].append(fs_inf)
+        [fs_inf, mode_inf] = fs_maxstrain_2D(mat_prop, 
+        									 eps1_inf, 
+        									 eps2_inf, 
+        									 gamma_inf)
+        fs["fs_inf"].append([fs_inf, mode_inf])
 
     return fs
 
@@ -160,20 +212,110 @@ def fs_maxstrain_2D(mat_prop, eps1, eps2, gamma):
 
     # Verify for eps1
     if eps1 > 0:
-        f_t = (eps1/strainXt)
+        f_1 = (eps1/strainXt)
     else:
-        f_t = (eps1/-strainXc)
+        f_1 = (eps1/-strainXc)
 
     # Verify for eps2
     if eps2 > 0:
-         f_c = (eps2/strainYt)
+         f_2 = (eps2/strainYt)
     else:
-        f_c = (eps2/-strainYc)
+        f_2 = (eps2/-strainYc)
 
     # Verify for gamma
     f_s = abs(gamma)/strainS21
 
+    f_max = max(f_1, f_2, f_s)
+
+    # Find failure mode
+    if f_max == f_1: 
+    	mode = "fiber"
+    elif f_max == f_2:
+    	mode = "matrix"
+    else:
+    	mode = "shear"
+
+    sf = 1/f_max
+
     # Result FS (1 / maximum of the 3 above)
-    return 1/max(f_t, f_c, f_s)
+    return [sf, mode]
+
+#########################################################################
+
+def hashin_2D(mat_list, lam, stress_inf, stress_sup):
+# FUNCTION:   hashin_2D & fs_hashin_2D - Calculates safety factor based
+#										 on Hashin 2D Criterion.
+#
+# INPUTs:     mat_list - list with dictionaries of material properties.
+#             lam(laminate) - contains dictionary of thicknesses,
+#							  angles and material ids.
+#             stress_inf - vector containing stresses (sig1, sig2, tau) 
+#						   at the bottom of a layer.
+#             stress_sup - vector containing stresses (sig1, sig2, tau) 
+#						   at the top of a layer.
+#
+# OUTPUTs:    fs - vector containing 2 columns: safety factor (inferior) 
+#				   and safety factor (superior).
+
+    # Get number of layers
+    num = len(lam["ang"])
+    fs = {"fs_inf" : [], "fs_sup" : []}
+
+    for i in range(num):
+        mat_id = lam["mat_id"][i]
+        mat_prop = mat_list[mat_id]
+
+        sig1_sup = stress_sup[0][i]
+        sig2_sup = stress_sup[1][i]
+        tau_sup = stress_sup[2][i]
+        [fs_sup, mode_sup] = fs_hashin_2D(mat_prop, 
+        								  sig1_sup, 
+        								  sig2_sup, 
+        								  tau_sup)
+        fs["fs_sup"].append([fs_sup, mode_sup])
+
+        sig1_inf = stress_inf[0][i]
+        sig2_inf = stress_inf[1][i]
+        tau_inf = stress_inf[2][i]
+        [fs_inf, mode_inf] = fs_hashin_2D(mat_prop, 
+        								  sig1_inf, 
+        								  sig2_inf, 
+        								  tau_inf)
+        fs["fs_inf"].append([fs_inf, mode_inf])
+
+    return fs
+
+
+def fs_hashin_2D(mat_prop, sig1, sig2, tau):
+
+    Xt = mat_prop["Xt"]
+    Xc = mat_prop["Xc"]
+    Yt = mat_prop["Yt"]
+    Yc = mat_prop["Yc"]
+    S21 = mat_prop["S12"]
+
+    # Verify for sig1
+    if sig1 >= 0:
+        f_1 = (sig1/Xt)
+    else:
+        f_1 = -(sig1/Xc)
+
+    # Verify for sig2
+    if sig2 >= 0:
+        f_2 = ((sig2/Yt)**2 + (tau/S21)**2)**0.5
+    else:
+        f_2 = ((sig2/Yc)**2 + (tau/S21)**2)**0.5
+
+    f_max = max(f_1, f_2)
+
+    if f_max == f_1:
+    	mode = "fiber"
+    else:
+    	mode = "matrix"
+
+    sf = 1/f_max
+
+    # Result FS (1 / maximum of the 3 above)
+    return [sf, mode]
 
 #########################################################################
