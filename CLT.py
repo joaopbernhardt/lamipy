@@ -28,11 +28,7 @@ def calc_stressCLT(mat_list, lam, F, fail_list = None, dT = 0):
     total_thk = numpy.sum(lam["thk"])
 
     # Z vector contains z coordinates.
-    Z = numpy.zeros(num + 1)
-    Z[0] = -total_thk/2
-
-    for i in range(num):
-        Z[i + 1] = Z[i] + lam["thk"][i]
+    Z = assemble_Z(lam)
 
     # Calculates stiffness matrix based on laminate properties.
     ABD = assemble_ABD(mat_list, lam, Z, fail_list)
@@ -90,7 +86,21 @@ def calc_stressCLT(mat_list, lam, F, fail_list = None, dT = 0):
                                  "sup" : MS_stress_sup}, 
                      "strain" : {"inf" : MS_strain_inf,
                                  "sup" : MS_strain_sup}}}
+##### BELOW: Auxiliary functions for the calculation of stresses and strains
 
+def assemble_Z(lam):
+# Z vector contains z coordinates.
+
+    # Get number of layers
+    num = len(lam["ang"])
+    total_thk = numpy.sum(lam["thk"])
+    Z = numpy.zeros(num + 1)
+    Z[0] = -total_thk/2
+
+    for i in range(num):
+        Z[i + 1] = Z[i] + lam["thk"][i]
+
+    return Z
 
 def calcThermalForces(mat_list, lam, Z, fail_list = None, dT = 0):
 # FUNCTION  | calcThermalForces
@@ -139,7 +149,7 @@ def calcMoistureForces():
     pass
 
 
-##### BELOW: Auxiliary functions for the calculation of stresses and strains
+
 
 def assemble_matrixQ (mat_prop, fail_type = None):
 # FUNCTION  | assemble_matrixQ

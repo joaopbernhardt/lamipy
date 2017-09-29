@@ -10,6 +10,7 @@
 import numpy as np
 import CLT
 import Failure_Criteria as FC
+import plotresults as plotr
 
 def TestA():
 # This temporary function tests the implementation.
@@ -42,20 +43,20 @@ def TestA():
         lam["thk"].append(0.127e-3)
         lam["mat_id"].append(0)
     #lam["ang"].extend((45, -45, 45, -45, 45, -45, -45, 45, -45, 45, -45, 45))
-    #lam["ang"].extend((0, 30, 30, 30, 30, 90, 90, 30, 30, 30, 30, 0))
-    #lam["ang"].extend((0, 0, 0, 0, 90, 90, 90, 90, 0, 0, 0, 0))
-    lam["ang"].extend((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+    #lam["ang"].extend((0, 30, -30, 30, -30, 90, 90, -30, 30, -30, 30, 0))
+    lam["ang"].extend((0, 0, 0, 0, 90, 90, 90, 90, 0, 0, 0, 0))
+    #lam["ang"].extend((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 
     # Vector F with the applied generalized stress (unit N/m / N.m/m)
-    F = np.array([  1e4,   # Nx
-                    0e4,   # Ny
+    F = np.array([  0e2,   # Nx
+                    0e2,   # Ny
                     0e4,   # Nxy
-                    0e6,   # Mx
-                    0e6,   # My
-                    0e4])   # Mxy
+                    1e1,   # Mx
+                    0e1,   # My
+                    0])   # Mxy
 
     # Temperature variation (degrees)
-    delta_T = 400 
+    delta_T = 0 
 
     # Calculates stresses and strains based on CLT.
     # res = calculated results holder;
@@ -105,8 +106,8 @@ def ProgressiveFailureTest(mat, lam, F, dT):
     LF = 1.00       # Load factor
     LS = 1.02       # Load step multiplier
     
-    # Holds strain data (in order to plot results)
-    strain_data = np.zeros((1, 2))
+    # Holds results data (in order to plot later)
+    plot_data = []
 
     # Main Load Factor loop (increases when there's no new failure)
     while failed_count[0] < num:
@@ -114,13 +115,10 @@ def ProgressiveFailureTest(mat, lam, F, dT):
         # Sends for CLT calculations
         res = CLT.calc_stressCLT(mat, lam, F*LF, fail_status["Mode"], dT)
 
-        # Calculates mean strain for the laminate (for plotting)
-        mean_eps = np.mean(np.union1d(res["LCS"]["strain"]["sup"][0], 
-                                      res["LCS"]["strain"]["inf"][0]))
-        strain_pair = np.array([[mean_eps, LF]])
-
-        # Appends new data pair (mean strain, load factor)
-        strain_data = np.concatenate((strain_data, strain_pair))
+        # Prepares data pair for entry, then appends data.
+        data_pair = [LF, res]
+        #plot_data = np.concatenate((plot_data, data_pair))
+        plot_data.append(data_pair)
 
         # Sends for SF calculations
         SF_list = FC.tsaiwu_2D(   mat, 
@@ -167,15 +165,10 @@ def ProgressiveFailureTest(mat, lam, F, dT):
     print("LPF / FPF : " + str(round(lpf/fpf, 1)))
 
     # Sends for plotting
-    PlotResults(strain_data)
+    plot_data = np.array(plot_data)
+    plotr.PlotResults(lam, plot_data, fail_status)
     
     pass
-
-
-def PlotResults(pairlist):
-    import matplotlib.pyplot as plt
-
-    plt.plot(pairlist[:,0], pairlist[:,1])
-    plt.show
+    
 
 TestA()
