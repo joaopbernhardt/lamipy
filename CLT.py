@@ -9,7 +9,7 @@
 
 import numpy
 
-def calc_stressCLT(mat_list, lam, F, fail_list = None):
+def calc_stressCLT(mat_list, lam, F, fail_list = None, dT = 0):
 # FUNCTION  | calc_stressCLT
 #           | Calculate stress and strain vectors according to the  
 #           | Classical Laminate Theory, at the top and bottom of each layer.
@@ -36,6 +36,10 @@ def calc_stressCLT(mat_list, lam, F, fail_list = None):
 
     # Calculates stiffness matrix based on laminate properties.
     ABD = assemble_ABD(mat_list, lam, Z, fail_list)
+
+    # Calculates thermal resultants and adds to Forces vector
+    Nt = calcThermalForces(mat_list, lam, Z, fail_list, dT)
+    F = F + Nt
 
     # Calculates strain vector by solving eq. form AX = B
     strain_vector = numpy.linalg.solve(ABD, F)
@@ -80,12 +84,59 @@ def calc_stressCLT(mat_list, lam, F, fail_list = None):
     # Outputs the stresses and strains vectors.
     # LCS = Laminate System; MCS = Material Coordinate System; 
     # inf = inferior; sup = superior.
-    return {"LCS" : {"stress" : {"inf" : LS_strain_inf,
+    return {"LCS" : {"strain" : {"inf" : LS_strain_inf,
                                  "sup" : LS_strain_sup}}, 
             "MCS" : {"stress" : {"inf" : MS_stress_inf,
                                  "sup" : MS_stress_sup}, 
                      "strain" : {"inf" : MS_strain_inf,
                                  "sup" : MS_strain_sup}}}
+
+
+def calcThermalForces(mat_list, lam, Z, fail_list = None, dT = 0):
+# FUNCTION  | calcThermalForces
+# INPUTs    | mat_list - list with dictionaries of material properties.
+#           | lam - laminate composition - contains dictionary of 
+#           |       thicknesses, angles and material ids.
+#           |  Z - vector containing Z coordinates
+#           | dT - temperature variation
+# OUTPUTs   | Nt - force vector due to thermal variation
+    
+    num = len(lam["ang"])
+
+    Nt = numpy.zeros(6)
+    a = numpy.zeros(3)
+    a_LCS = numpy.zeros(3)
+    
+
+    for i in range(num):
+        mat_id = lam["mat_id"][i]
+        mat_prop = mat_list[mat_id]
+        ang = lam["ang"][i]        
+
+        #alpha (material coord system) vector
+        a = [mat_prop["a1"], mat_prop["a2"], 0]
+
+        T = assemble_matrixT(ang)
+        Ti = numpy.transpose(T)
+
+        a_LCS = numpy.matmul(Ti, a)
+
+        # Checks if there's failure list
+        if isinstance(fail_list, list):
+            Q = assemble_matrixQ(mat_prop, fail_list[i])
+        else:
+            Q = assemble_matrixQ(mat_prop)
+
+        Nt[:3] = Nt[:3] + numpy.dot(Q, a_LCS) * dT * (Z[i+1] - Z[i])
+        Nt[3:6] = Nt[3:6] + numpy.dot(Q, a_LCS) * dT * (1/2) * (Z[i+1]**2 - Z[i]**2)
+
+    return Nt 
+
+
+
+def calcMoistureForces():
+
+    pass
 
 
 ##### BELOW: Auxiliary functions for the calculation of stresses and strains
