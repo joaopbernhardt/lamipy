@@ -5,9 +5,13 @@ Laminated composites engineering simulations in Python.
 
 ## Brief description:
 
-This project's purpose is to provide simple & accurate computations for engineering simulations of **laminated composites**.
+This project's purpose is to provide simple & accurate computations for engineering simulations of **fiber-reinforced composites**.
 
-The implementation uses the **Classical Laminate Theory (CLT)** for computations. The summary of this theory can be found in: [Prof. W. Stein's document](http://wstein.org/edu/2010/480b/projects/05-lamination_theory/A%20summary%20of%20Classical%20Lamination%20Theory.pdf).
+A composite laminate consists of a material resultant of layers (laminae) bonded together. In this program, the layers are considered continuous and *orthotropic*.
+This kind of advanced material is used in many areas of engineering: spacecrafts, pressure vessels, risers etc. Basically, the idea behind composite laminates is to produce a material which has the required engineering properties (high elastic modulus, low self-weight and others).
+
+The implementation uses the **Classical Laminate Theory (CLT)** for computations. 
+The summary of this theory can be found in: [NASA's Basic Mechanics of Laminated Composite Plates](https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19950009349.pdf), [Prof. W. Stein's document](http://wstein.org/edu/2010/480b/projects/05-lamination_theory/A%20summary%20of%20Classical%20Lamination%20Theory.pdf) and other sources.
 
 Currently lamipy is *not ready for use* due to the lack of verification and validation tests, which will be produced soon.
 
@@ -43,6 +47,7 @@ As previously stated, *lamipy* works through the CLT computations. This way, the
 Below is a summary of the data flow inside lamipy for a *simple analysis* (i.e. not a *progressive failure analysis*).
 <img src="docs/dataflow.PNG" data-canonical-src="docs/dataflow.PNG" />
 
+### Example results:
 Through the obtained results from an analysis, it is possible to plot charts for better visualisation:
 <img src="docs/example_plot1.png" data-canonical-src="docs/example_plot1.png" />
 <img src="docs/example_plot2.png" data-canonical-src="docs/example_plot2.png" />
