@@ -5,10 +5,9 @@ Laminated composites engineering simulations in Python.
 
 ## Brief description:
 
-This project's purpose is to provide simple & accurate computations for engineering simulations of **fiber-reinforced composites**.
+This project's purpose is to provide simple & accurate computations for engineering simulations of **fiber-reinforced composites**. This kind of advanced material is used in many areas of engineering: spacecrafts, pressure vessels, risers etc. Basically, the idea behind composite laminates is to produce a component which has the required engineering properties (high elastic modulus, low self-weight and others) through stacking many layers of laminae, in such way that each one can be layed in different fiber angles and can consist of different materials.
 
-A composite laminate consists of a material resultant of layers (laminae) bonded together. In this program, the layers are considered continuous and *orthotropic*.
-This kind of advanced material is used in many areas of engineering: spacecrafts, pressure vessels, risers etc. Basically, the idea behind composite laminates is to produce a material which has the required engineering properties (high elastic modulus, low self-weight and others).
+Therefore, a composite laminate consists of a material resultant of layers (laminae) bonded together. In this program, the layers are considered continuous and *orthotropic*. It is possible to input different properties for each used material in the layers.
 
 The implementation uses the **Classical Laminate Theory (CLT)** for computations. 
 The summary of this theory can be found in: [NASA's Basic Mechanics of Laminated Composite Plates](https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19950009349.pdf), [Prof. W. Stein's document](http://wstein.org/edu/2010/480b/projects/05-lamination_theory/A%20summary%20of%20Classical%20Lamination%20Theory.pdf) and other sources.
