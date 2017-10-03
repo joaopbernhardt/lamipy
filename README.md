@@ -38,4 +38,15 @@ Currently, *lamipy* is **not ready for general usage**. If you want to test the 
 
 ## Understanding lamipy:
 
-*To be written.*
+As previously stated, *lamipy* works through the CLT computations. This way, the user input consists of the material properties, layup configurations, force vectors and other settings.
+
+Below is a summary of the data flow inside lamipy for a *simple analysis* (i.e. not a *progressive failure analysis*).
+<img src="docs/dataflow.PNG" data-canonical-src="docs/dataflow.PNG" />
+
+Through the obtained results from an analysis, it is possible to plot charts for better visualisation:
+<img src="docs/example_plot1.PNG" data-canonical-src="docs/example_plot1.PNG" />
+<img src="docs/example_plot2.PNG" data-canonical-src="docs/example_plot2.PNG" />
+<img src="docs/example_plot3.PNG" data-canonical-src="docs/example_plot3.PNG" />
+
+Also, since lamipy is capable of running a *progressive failure analysis*, it is possible to automatically plot the Load Factor vs. Average Strain of the laminate while directly pointing *First Ply Failure* and *Last Ply Failure*:
+<img src="docs/example_plot4.PNG" data-canonical-src="docs/example_plot4.PNG" />
