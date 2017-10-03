@@ -10,7 +10,9 @@
 import numpy as np
 import CLT
 import Failure_Criteria as FC
-import plotresults as plotr
+#import plotresults as plotr
+#import plotresults_class as plotr
+from plotresults import PlotResults
 
 def TestA():
 # This temporary function tests the implementation.
@@ -18,14 +20,14 @@ def TestA():
     # Material 1 - Dictionary of properties
     #              All units are in Pa (N/m2)
     mat1 = {
-     "E1"  : 156.4e9,       
-     "E2"  : 7.786e9,       
+     "E1"  : 69e9,       
+     "E2"  : 6e9,       
      "n12" : 0.354,         
-     "G12" : 3.762e9,       
-     "Xt" : 1826e6,         
-     "Xc" : 1134e6,
-     "Yt" : 19e6,
-     "Yc" : 131e6,
+     "G12" : 3e9,       
+     "Xt" : 47e6,         
+     "Xc" : 14e6,
+     "Yt" : 24e6,
+     "Yc" : 18e6,
      "S12" : 75e6,
      "S32" : 41e6,
      "a1" : 2.1e-6,
@@ -44,19 +46,20 @@ def TestA():
         lam["mat_id"].append(0)
     #lam["ang"].extend((45, -45, 45, -45, 45, -45, -45, 45, -45, 45, -45, 45))
     #lam["ang"].extend((0, 30, -30, 30, -30, 90, 90, -30, 30, -30, 30, 0))
-    lam["ang"].extend((0, 0, 0, 0, 90, 90, 90, 90, 0, 0, 0, 0))
+    #lam["ang"].extend((0, 0, 0, 0, 90, 90, 90, 90, 0, 0, 0, 0))
     #lam["ang"].extend((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+    lam["ang"].extend((45, -45, 0, 90, 0, 90, 90, 0, 90, 0, -45, 45))
 
     # Vector F with the applied generalized stress (unit N/m / N.m/m)
     F = np.array([  0e2,   # Nx
-                    0e2,   # Ny
+                    1e2,   # Ny
                     0e4,   # Nxy
-                    1e1,   # Mx
+                    0e0,   # Mx
                     0e1,   # My
                     0])   # Mxy
 
     # Temperature variation (degrees)
-    delta_T = 0 
+    delta_T = -60 
 
     # Calculates stresses and strains based on CLT.
     # res = calculated results holder;
@@ -166,8 +169,10 @@ def ProgressiveFailureTest(mat, lam, F, dT):
 
     # Sends for plotting
     plot_data = np.array(plot_data)
-    plotr.PlotResults(lam, plot_data, fail_status)
-    
+    plotr = PlotResults(lam, plot_data, fail_status)
+    plotr.Options(save=True, display=False)
+    plotr.ProgAvgStrain()
+    plotr.Profile("MCS", 1, "strain", 0)  
     pass
     
 
