@@ -20,10 +20,10 @@ Currently lamipy is *not ready for use* due to the lack of verification and vali
 - [x] Calculates CLT stresses & strains (lamina & laminate coord. systems);
 - [x] Failure tests for individual laminas (Tsai-Wu, Max. Stress, Max Strain and Hashin criteria);
 - [x] Progressive failure analysis using *Ply Discount* method;
-- [ ] Plotting of progressive failure analysis;
+- [x] Plotting of progressive failure analysis;
 - [ ] Easy entry of laminate data;
 - [ ] Puck failure criteria;
-- [ ] Thermal & moisture effects on CLT calculations;
+- [x] Thermal & moisture effects on CLT calculations;
 - [ ] Laminate materials simple database
 - [ ] ...
 
