@@ -1,13 +1,36 @@
+"""
+lamipy project - laminated composites calculations in Python.
+
+plotresults.py - Module containing a class for results plotting.
+
+INPUTS:
+lam -- laminate layup characteristics
+plot_data -- contains pairs of Load Factor vs Results (stress & strain)
+fail_status -- contains data about layer failures
+**options -- keywords which set plotting options
+
+OUTPUTS:
+.png savefile -- saves figures and plots.
+.mp4 animation -- saves video of failure progress.
+
+Joao Paulo Bernhardt - October 2017
+"""
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib.animation import FuncAnimation
-import CLT
-import Failure_Criteria as FC
+import clt
 
 class PlotResults:
+    """ Contains functions for setting options and plotting data.
+
+    Initialization requires:
+    lam -- laminate layup characteristics
+    plot_data -- contains pairs of Load Factor vs Results (stress & strain)
+    fail_status -- contains data about layer failures
+    """
 
     def __init__(self, lam, plot_data, fail_status):
+        # Sets obligatory data for the instance.
         self.lam = lam
         self.plot_data = plot_data
         self.fail_status = fail_status
@@ -24,17 +47,19 @@ class PlotResults:
         self.display = True
 
     def Options(self, **options):
+        """ Optional function for determining plot options."""
 
+        # Should lamipy save the plots?
         if isinstance(options["save"], bool):
             self.save = options["save"]
 
+        # Should lamipy display the plots during runtime?
         if isinstance(options["display"], bool):
             self.display = options["display"]
 
 
     def ProgAvgStrain(self):
-    # Plots the average strain in the laminate vs. load factor, 
-    # showing the FPF and LPF with arrows.
+        """ Plots Average Strain (x-axis) vs. Load Factor (y-axis). """
 
         # Sets plot dimension
         fig = plt.figure()
@@ -48,8 +73,9 @@ class PlotResults:
 
         # Iterates the loadsteps
         for step in range(self.num_steps):
-            mean_eps[step] = np.mean(np.union1d(self.res[step]["LCS"]["strain"]["sup"][0], 
-                                             self.res[step]["LCS"]["strain"]["inf"][0]))
+            mean_eps[step] = np.mean(np.union1d(
+                                    self.res[step]["LCS"]["strain"]["sup"][0], 
+                                    self.res[step]["LCS"]["strain"]["inf"][0]))
             # Finds FPF and LPF
             if self.plot_data[step, 0] == fpf_lf and fpf_strain == 0:
                 fpf_strain = mean_eps[step]
@@ -83,14 +109,13 @@ class PlotResults:
         plt.close(fig)
   
     def Profile(self, coord_sys, axis, var, step):
-    # This is a versatile function which plots stress or strain against
-    # the Z vector (Laminate Profile)
-
+        """ Plots stress/strain in LCS or MCS against Z vector. """
+ 
         # Sets plot dimension
         fig = plt.figure()
         #plt.figure(figsize=(10, 8))
 
-        Z = CLT.assemble_Z(self.lam)
+        Z = clt.assemble_Z(self.lam)
         
         X = { "inf" : np.zeros((self.num_layers)), 
               "sup" : np.zeros((self.num_layers)) }
@@ -154,7 +179,7 @@ class PlotResults:
     # NOT READY YET.
     # Function for displaying animated plot of profile.
 
-        Z = CLT.assemble_Z(lam)
+        Z = clt.assemble_Z(lam)
         
         X = { "inf" : np.zeros((num_layers)), "sup" : np.zeros((num_layers)) }
         Y = { "inf" : np.zeros((num_layers)), "sup" : np.zeros((num_layers)) }
