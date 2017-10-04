@@ -34,9 +34,9 @@ Currently lamipy is *not ready for use* due to the lack of verification and vali
 
 Currently, *lamipy* is **not ready for general usage**. If you want to test the code, here are the steps:
 
-*Note: using lamipy requires a python environment for executing the Run_FailureTest.py file. It is also required **numpy** and **matplotlib** libraries (both of which are easily encountered in many python distributions).*
+*Note: using lamipy requires a python3 environment for executing the **runfailuretest.py** file. It is also required **numpy** and **matplotlib** libraries (both of which are easily encountered in many python distributions).*
 1. Clone this repository;
-1. Edit Run_FailureTest.py to input the laminate data;
+1. Edit runfailuretest.py to input the laminate data;
 1. Execute.
 
 ## Understanding lamipy:
