@@ -119,7 +119,7 @@ def ProgressiveFailureTest(mat, lam, F, dT = 0, dM = 0):
     dT -- delta T (temperature variation)
     dM -- delta M (moisture variation)
 
-    Progressive failure analysis function which loops through CLT and
+    Progressive failure analysis function - loops through CLT and
     failure criteria in order to catch failed layers, which are then
     discounted (Ply Discount Method).
     Every iteration increases the Load Factor by a small factor, unless there
@@ -207,4 +207,4 @@ def ProgressiveFailureTest(mat, lam, F, dT = 0, dM = 0):
     pass
     
 
-TestA()
+# TestA()

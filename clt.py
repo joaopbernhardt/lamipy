@@ -27,6 +27,8 @@ Joao Paulo Bernhardt - October 2017
 
 import numpy
 
+class LaminateLayupError(TypeError): pass
+
 def calc_stressCLT(mat_list, lam, F, fail_list = None, dT = 0, dM = 0):
     """ Calculates stress and strain vectors according to CLT. """
 
@@ -100,6 +102,9 @@ def calc_stressCLT(mat_list, lam, F, fail_list = None, dT = 0, dM = 0):
 
 def assemble_Z(lam):
     """ Assembles Z vector which contains z coordinates of laminate. """
+
+    if not isinstance(lam, dict):
+        raise LaminateLayupError('Laminate has to be a dictionary.')
 
     # Get number of layers
     num = len(lam["ang"])
