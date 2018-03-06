@@ -195,6 +195,9 @@ def calcMoistureForces(mat_list, lam, Z, fail_list = None, dM = 0):
 def assemble_matrixQ (mat_prop, fail_type = None):
     """ Assembles Q matrix (reduced elastic matrix) for a given layer. """
     
+    if not isinstance(mat_prop, dict):
+        raise TypeError('mat_prop must be a dictionary')
+
     # Degradation Factor (for failed layers)
     df = 0.001
 
@@ -223,9 +226,9 @@ def assemble_matrixQ (mat_prop, fail_type = None):
     Q66 = G12
 
     Q = numpy.zeros((3, 3))
-    Q = [[Q11, Q12, 0],
-         [Q12, Q22, 0],
-         [0,   0, Q66]]
+    Q = numpy.array([[Q11, Q12, 0],
+                     [Q12, Q22, 0],
+                     [0,   0, Q66]])
     return Q
 
 
@@ -233,7 +236,8 @@ def assemble_matrixT(angle):
     """ Assembles T matrix (angles transformation matrix LCS -> MCS). """
 
     if not isinstance(angle, (int, float)) or not (-360 <= angle <= 360):
-        raise LaminateLayupError("lamina angle is not between +- 360 degrees")
+        raise LaminateLayupError("lamina angle is not between +- 360 degrees"+
+                                " or it is not an int/float")
 
     #Transforms angle (degrees) to angle (radians)
     angle = numpy.pi*angle/180

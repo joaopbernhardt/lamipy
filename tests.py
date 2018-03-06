@@ -19,7 +19,8 @@ def assemble_valid_laminate():
      "a1" : 1e-6,
      "a2" : 1e-6,
      "b1" : 0.01,
-     "b2" : 0.35}
+     "b2" : 0.35
+     }
 
     # Assembles material list
     mat = [mat1, []]
@@ -98,6 +99,38 @@ class CLTFunctionsTest(unittest.TestCase):
             expected_Ti_list = [int(Ti) for Ti in numpy.nditer(expected_T)]
             returned_Ti_list = [int(Ti) for Ti in numpy.nditer(T)]
             self.assertTrue(expected_Ti_list == returned_Ti_list)
+
+    def test_assemble_matrixQ_invalid_input_returns_error(self):
+        """Sends an invalid input to the function and expects the proper error"""
+        mat_prop_list = (None, [1, 1, 1], 1, 0.1)
+        for mat_prop in mat_prop_list:
+            self.assertRaises(
+                TypeError, clt.assemble_matrixQ, mat_prop
+                )
+
+    def test_assemble_matrixQ_known_input_returns_correct_result(self):
+        """Sends known input to the function and expects a known output,
+        allowing for 0.1% error.
+        Values come from Nasa Mechanics of Laminated Composite Plates
+        Page 31 - Example 1"""
+        mat1 = {
+             "E1"  : 20010000.0,       
+             "E2"  : 1301000.0,       
+             "n12" : 0.3,         
+             "G12" : 1001000.0,       
+             }
+        expected_Q = numpy.array([[20130785,  392656,       0],
+                                  [  392656, 1308853,       0],
+                                  [       0,       0, 1001000]])
+        returned_Q = clt.assemble_matrixQ(mat1)
+
+        for rQ, eQ in zip(numpy.nditer(returned_Q), 
+                          numpy.nditer(expected_Q)):
+            if eQ == 0 or rQ == 0:
+                pass
+            else:
+                error = rQ/eQ
+            self.assertTrue(0.999 < error < 1.001)
 
 if __name__ == '__main__':
     unittest.main()
