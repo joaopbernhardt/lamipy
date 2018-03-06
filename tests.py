@@ -127,7 +127,7 @@ class CLTFunctionsTest(unittest.TestCase):
         for rQ, eQ in zip(numpy.nditer(returned_Q), 
                           numpy.nditer(expected_Q)):
             if eQ == 0 or rQ == 0:
-                pass
+                continue
             else:
                 error = rQ/eQ
             self.assertTrue(0.999 < error < 1.001)
