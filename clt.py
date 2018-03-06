@@ -232,6 +232,9 @@ def assemble_matrixQ (mat_prop, fail_type = None):
 def assemble_matrixT(angle):
     """ Assembles T matrix (angles transformation matrix LCS -> MCS). """
 
+    if not isinstance(angle, (int, float)) or not (-360 <= angle <= 360):
+        raise LaminateLayupError("lamina angle is not between +- 360 degrees")
+
     #Transforms angle (degrees) to angle (radians)
     angle = numpy.pi*angle/180
 
@@ -242,9 +245,9 @@ def assemble_matrixT(angle):
     ss = sin**2
 
     T = numpy.zeros((3, 3))
-    T = [[cc,    ss,   cs   ],
-         [ss,    cc,  -cs   ],
-         [-2*cs, 2*cs, cc-ss]]
+    T = numpy.array([[cc,    ss,   cs   ],
+                     [ss,    cc,  -cs   ],
+                     [-2*cs, 2*cs, cc-ss]])
     return T
 
 

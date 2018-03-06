@@ -60,5 +60,44 @@ class CLTFunctionsTest(unittest.TestCase):
                              3e-03,  4e-03,  5e-03]
         self.assertEqual(Z_vector, expected_Z_vector)
 
+    def test_assemble_matrixT_invalid_input_returns_error(self):
+        """Sends invalid inputs to the function, expects errors"""
+        ang_list = (None, 361, -361, -360.1)
+        for ang in ang_list:
+            self.assertRaises(clt.LaminateLayupError, clt.assemble_matrixT, ang)
+
+    def test_assemble_matrixT_valid_input_returns_numpy_array(self):
+        """Sends valid input and expects a numpy array in return"""
+        ang_list = (0, 90, 360, -180.9, -359.1)
+        for ang in ang_list:
+            T = clt.assemble_matrixT(ang)
+            self.assertTrue(isinstance(T, numpy.ndarray))
+
+    def test_assemble_matrixT_returns_expected_output_with_known_input(self):
+        """Sends input that has known T matrix, expects the same output"""
+        ang_list = [0, 90, -45, +45, 90, 0]
+        for ang in ang_list:
+            T = clt.assemble_matrixT(ang)
+            T = numpy.round_(T, 6)
+            if ang == 0:
+                expected_T = numpy.array([[ 1,  0,  0],
+                                          [ 0,  1,  0],
+                                          [ 0,  0,  1]])
+            elif ang == 90:
+                expected_T = numpy.array([[ 0,  1,  0],
+                                          [ 1,  0,  0],
+                                          [ 0,  0, -1]])
+            elif ang == -45:
+                expected_T = numpy.array([[ 0.5,  0.5, -0.5],
+                                          [ 0.5,  0.5, -0.5],
+                                          [  1,    -1,    0]])
+            elif ang == +45:
+                expected_T = numpy.array([[ 0.5,  0.5,  0.5],
+                                          [ 0.5,  0.5, -0.5],
+                                          [  -1,    1,    0]])
+            expected_Ti_list = [int(Ti) for Ti in numpy.nditer(expected_T)]
+            returned_Ti_list = [int(Ti) for Ti in numpy.nditer(T)]
+            self.assertTrue(expected_Ti_list == returned_Ti_list)
+
 if __name__ == '__main__':
     unittest.main()
