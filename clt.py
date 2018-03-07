@@ -258,6 +258,11 @@ def assemble_matrixT(angle):
 def assemble_ABD(mat_list, lam, Z, fail_list = None):
     """ Assembles ABD matrix (laminate stiffness matrix). """
 
+    if (not (isinstance(mat_list, (tuple, list))) or
+    not (isinstance(lam, dict)) or
+    not (isinstance(Z, numpy.ndarray))):
+        raise LaminateLayupError('invalid input(s) for this function')
+
     num = len(lam["ang"])
     A = B = D = numpy.zeros((3,3))
 

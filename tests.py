@@ -132,5 +132,84 @@ class CLTFunctionsTest(unittest.TestCase):
                 error = rQ/eQ
             self.assertTrue(0.999 < error < 1.001)
 
+    def test_assemble_ABD_invalid_input_errors(self):
+        """Sends invalid inputs to the function, expects the proper error"""
+        valid_mat_list = [{'X':1}, ]
+        valid_lam = assemble_valid_laminate()
+        valid_Z = clt.assemble_Z(valid_lam)
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.assemble_ABD,
+                        valid_mat_list,
+                        valid_lam,
+                        None # Tests for invalid Z_vector
+                        ) 
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.assemble_ABD,
+                        valid_mat_list,
+                        None, # Tests for invalid lam
+                        valid_Z 
+                        ) 
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.assemble_ABD,
+                        None, # Tests for invalid mat_list
+                        valid_mat_list, 
+                        valid_Z 
+                        ) 
+
+    def test_assemble_ABD_known_input_returns_correct_result(self):
+        """Sends known input to the function and expects a known output,
+        allowing for 0.1% error.
+        Values come from Nasa Mechanics of Laminated Composite Plates
+        Page 38 - Example 2"""
+        mat1 = {
+             "E1"  : 20010000.0,       
+             "E2"  : 1301000.0,       
+             "n12" : 0.3,         
+             "G12" : 1001000.0,       
+             }
+        mat_list = (mat1, )
+        # Initializes dictionary of the laminate layup configurations
+        # thk is thickness; ang is angle; mat_id is material id
+        lam = {"thk": [], "ang": [], "mat_id" : []}
+
+        # Ply 1
+        lam['thk'].append(0.005)
+        lam['ang'].append(45)
+        lam['mat_id'].append(0)
+
+        # Ply 2
+        lam['thk'].append(0.005)
+        lam['ang'].append(0)
+        lam['mat_id'].append(0)
+
+        Z = clt.assemble_Z(lam)
+
+        expected_A = numpy.array([[133420,  24735,  23523 ],
+                                  [ 24735,  39325,  23523 ],
+                                  [ 23523,  23523,  30819]])
+        expected_B = numpy.array([[ 169.6,  -52.02, -58.80],
+                                  [-52.02,  -65.59, -58.80],
+                                  [-58.80,  -58.80, -52.02]])
+        expected_D = numpy.array([[1.1118, 0.2061, 0.1960],
+                                  [0.2061, 0.3277, 0.1960],
+                                  [0.1960, 0.1960, 0.2568]])
+        expected_ABD = numpy.zeros((6,6))
+        expected_ABD[:3, :3] = expected_A
+        expected_ABD[:3, 3:6] = expected_ABD[3:6, :3] = expected_B
+        expected_ABD[3:6, 3:6] = expected_D
+
+        returned_ABD = clt.assemble_ABD(mat_list, lam, Z)
+
+        for rABD, eABD in zip(numpy.nditer(returned_ABD), 
+                              numpy.nditer(expected_ABD)):
+            if rABD == 0 or eABD == 0:
+                continue
+            else:
+                error = rABD/eABD
+            self.assertTrue(0.999 < error < 1.001)
+
 if __name__ == '__main__':
     unittest.main()
