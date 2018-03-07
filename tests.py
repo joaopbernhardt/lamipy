@@ -277,11 +277,18 @@ class CLTFunctionsTest(unittest.TestCase):
         lam['mat_id'].append(0)
 
         Z = clt.assemble_Z(lam)
+        print(Z)
 
         returned_Nt = clt.calc_thermal_forces(mat_list, lam, Z, dT=-155.6)
+        expected_Nt = numpy.array([-33.57, -60.42, 12.83])
 
-        print(returned_Nt)
-        self.fail('Finish this test!')
+        for rNt, eNt in zip(numpy.nditer(returned_Nt), 
+                              numpy.nditer(expected_Nt)):
+            if rNt == 0 or eNt == 0:
+                continue
+            else:
+                error = rNt/eNt
+            self.assertTrue(0.999 < error < 1.001)
 
     def test_calc_moisture_forces_invalid_input_errors(self):
         """Sends invalid inputs to the function, expects the proper error"""
@@ -351,9 +358,15 @@ class CLTFunctionsTest(unittest.TestCase):
         Z = clt.assemble_Z(lam)
 
         returned_Nm = clt.calc_moisture_forces(mat_list, lam, Z, dM=0.007)
+        expected_Nm = numpy.array([51.7, 60.4, -4.3])
 
-        print("\nNm = " + str(returned_Nm))
-        self.fail('Finish this test!')
+        for rNm, eNm in zip(numpy.nditer(returned_Nm), 
+                              numpy.nditer(expected_Nm)):
+            if rNm == 0 or eNm == 0:
+                continue
+            else:
+                error = rNm/eNm
+            self.assertTrue(0.999 < error < 1.001)
 
 if __name__ == '__main__':
     unittest.main()

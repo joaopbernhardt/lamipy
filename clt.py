@@ -151,11 +151,7 @@ def calc_thermal_forces(mat_list, lam, Z, fail_list = None, dT = 0):
         else:
             Q = assemble_matrixQ(mat_prop)
 
-        M = [[1, 0, 0],
-             [0, 1, 0],
-             [0, 0, 1]]
-
-        Qbar = numpy.dot(numpy.dot(numpy.dot(Ti, Q), M), T)
+        Qbar = numpy.dot(numpy.dot(Ti, Q), T)
 
         Nt[:3] = Nt[:3] + numpy.dot(Qbar, a_LCS) * dT * (Z[i+1] - Z[i])
         Nt[3:6] = Nt[3:6] + numpy.dot(Qbar, a_LCS) * dT * (1/2) * \
@@ -205,9 +201,6 @@ def calc_moisture_forces(mat_list, lam, Z, fail_list = None, dM = 0):
                                                 (Z[i+1]**2 - Z[i]**2)
 
     return Nm 
-
-
-
 
 def assemble_matrixQ (mat_prop, fail_type = None):
     """ Assembles Q matrix (reduced elastic matrix) for a given layer. """
