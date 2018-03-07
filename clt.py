@@ -43,8 +43,8 @@ def calc_stressCLT(mat_list, lam, F, fail_list = None, dT = 0, dM = 0):
     ABD = assemble_ABD(mat_list, lam, Z, fail_list)
 
     # Calculates thermal, moisture resultants and adds to Forces vector
-    Nt = calcThermalForces(mat_list, lam, Z, fail_list, dT)
-    Nm = calcMoistureForces(mat_list, lam, Z, fail_list, dM)
+    Nt = calc_thermal_forces(mat_list, lam, Z, fail_list, dT)
+    Nm = calc_moisture_forces(mat_list, lam, Z, fail_list, dM)
     F = F + Nt + Nm
 
     # Calculates strain vector by solving eq. form AX = B
@@ -117,9 +117,14 @@ def assemble_Z(lam):
 
     return Z
 
-def calcThermalForces(mat_list, lam, Z, fail_list = None, dT = 0):
+def calc_thermal_forces(mat_list, lam, Z, fail_list = None, dT = 0):
     """ Calculates force resultants due to temperature variations. """
     
+    if (not (isinstance(mat_list, (tuple, list))) or
+    not (isinstance(lam, dict)) or
+    not (isinstance(Z, numpy.ndarray))):
+        raise LaminateLayupError('invalid input(s) for this function')
+
     num = len(lam["ang"])
 
     Nt = numpy.zeros(6)
@@ -146,16 +151,26 @@ def calcThermalForces(mat_list, lam, Z, fail_list = None, dT = 0):
         else:
             Q = assemble_matrixQ(mat_prop)
 
-        Nt[:3] = Nt[:3] + numpy.dot(Q, a_LCS) * dT * (Z[i+1] - Z[i])
-        Nt[3:6] = Nt[3:6] + numpy.dot(Q, a_LCS) * dT * (1/2) * \
+        M = [[1, 0, 0],
+             [0, 1, 0],
+             [0, 0, 1]]
+
+        Qbar = numpy.dot(numpy.dot(numpy.dot(Ti, Q), M), T)
+
+        Nt[:3] = Nt[:3] + numpy.dot(Qbar, a_LCS) * dT * (Z[i+1] - Z[i])
+        Nt[3:6] = Nt[3:6] + numpy.dot(Qbar, a_LCS) * dT * (1/2) * \
                                                      (Z[i+1]**2 - Z[i]**2)
 
     return Nt 
 
-
-
-def calcMoistureForces(mat_list, lam, Z, fail_list = None, dM = 0):
+def calc_moisture_forces(mat_list, lam, Z, fail_list = None, dM = 0):
     """ Calculates force resultants due to moisture variations. """
+
+    if (not (isinstance(mat_list, (tuple, list))) or
+    not (isinstance(lam, dict)) or
+    not (isinstance(Z, numpy.ndarray))):
+        raise LaminateLayupError('invalid input(s) for this function')
+
 
     num = len(lam["ang"])
 
@@ -183,8 +198,10 @@ def calcMoistureForces(mat_list, lam, Z, fail_list = None, dM = 0):
         else:
             Q = assemble_matrixQ(mat_prop)
 
-        Nm[:3] = Nm[:3] + numpy.dot(Q, b_LCS) * dM * (Z[i+1] - Z[i])
-        Nm[3:6] = Nm[3:6] + numpy.dot(Q, b_LCS) * dM * (1/2) * \
+        Qbar = numpy.dot(numpy.dot(Ti, Q), T)
+
+        Nm[:3] = Nm[:3] + numpy.dot(Qbar, b_LCS) * dM * (Z[i+1] - Z[i])
+        Nm[3:6] = Nm[3:6] + numpy.dot(Qbar, b_LCS) * dM * (1/2) * \
                                                 (Z[i+1]**2 - Z[i]**2)
 
     return Nm 

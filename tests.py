@@ -211,5 +211,149 @@ class CLTFunctionsTest(unittest.TestCase):
                 error = rABD/eABD
             self.assertTrue(0.999 < error < 1.001)
 
+    def test_calc_thermal_forces_invalid_input_errors(self):
+        """Sends invalid inputs to the function, expects the proper error"""
+        valid_mat_list = [{'X':1}, ]
+        valid_lam = assemble_valid_laminate()
+        valid_Z = clt.assemble_Z(valid_lam)
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.calc_thermal_forces,
+                        valid_mat_list,
+                        valid_lam,
+                        None # Tests for invalid Z_vector
+                        ) 
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.calc_thermal_forces,
+                        valid_mat_list,
+                        None, # Tests for invalid lam
+                        valid_Z 
+                        ) 
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.calc_thermal_forces,
+                        None, # Tests for invalid mat_list
+                        valid_mat_list, 
+                        valid_Z 
+                        ) 
+
+    def test_calc_thermal_forces_known_input_returns_expected_result(self):
+        """Sends known input to the function and expects a known output,
+        allowing for 0.1% error.
+        Values come from Nasa Mechanics of Laminated Composite Plates
+        Page 51 - Example 4"""
+        mat1 = {
+             "E1"  : 20010000.0,       
+             "E2"  : 1301000.0,       
+             "n12" : 0.3,         
+             "G12" : 1001000.0,   
+             "a1"  : -0.04e-6,
+             "a2"  : 18e-6,   
+             }
+        mat_list = (mat1, )
+        # Initializes dictionary of the laminate layup configurations
+        # thk is thickness; ang is angle; mat_id is material id
+        lam = {"thk": [], "ang": [], "mat_id" : []}
+
+        # Ply 1
+        lam['thk'].append(0.005)
+        lam['ang'].append(0)
+        lam['mat_id'].append(0)
+
+        # Ply 2
+        lam['thk'].append(0.005)
+        lam['ang'].append(45)
+        lam['mat_id'].append(0)
+
+        # Ply 3
+        lam['thk'].append(0.005)
+        lam['ang'].append(45)
+        lam['mat_id'].append(0)
+
+        # Ply 4
+        lam['thk'].append(0.005)
+        lam['ang'].append(0)
+        lam['mat_id'].append(0)
+
+        Z = clt.assemble_Z(lam)
+
+        returned_Nt = clt.calc_thermal_forces(mat_list, lam, Z, dT=-155.6)
+
+        print(returned_Nt)
+        self.fail('Finish this test!')
+
+    def test_calc_moisture_forces_invalid_input_errors(self):
+        """Sends invalid inputs to the function, expects the proper error"""
+        valid_mat_list = [{'X':1}, ]
+        valid_lam = assemble_valid_laminate()
+        valid_Z = clt.assemble_Z(valid_lam)
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.calc_moisture_forces,
+                        valid_mat_list,
+                        valid_lam,
+                        None # Tests for invalid Z_vector
+                        ) 
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.calc_moisture_forces,
+                        valid_mat_list,
+                        None, # Tests for invalid lam
+                        valid_Z 
+                        ) 
+
+        self.assertRaises(clt.LaminateLayupError,
+                        clt.calc_moisture_forces,
+                        None, # Tests for invalid mat_list
+                        valid_mat_list, 
+                        valid_Z 
+                        ) 
+
+    def test_calc_moistures_forces_known_input_returns_expected_result(self):
+        """Sends known input to the function and expects a known output,
+        allowing for 0.1% error.
+        Values come from Nasa Mechanics of Laminated Composite Plates
+        Page 53 - Example 5"""
+        mat1 = {
+             "E1"  : 20010000.0,       
+             "E2"  : 1301000.0,       
+             "n12" : 0.3,         
+             "G12" : 1001000.0,   
+             "b1"  : 0.01,
+             "b2"  : 0.35,   
+             }
+        mat_list = (mat1, )
+        # Initializes dictionary of the laminate layup configurations
+        # thk is thickness; ang is angle; mat_id is material id
+        lam = {"thk": [], "ang": [], "mat_id" : []}
+
+        # Ply 1
+        lam['thk'].append(0.005)
+        lam['ang'].append(0)
+        lam['mat_id'].append(0)
+
+        # Ply 2
+        lam['thk'].append(0.005)
+        lam['ang'].append(45)
+        lam['mat_id'].append(0)
+
+        # Ply 3
+        lam['thk'].append(0.005)
+        lam['ang'].append(45)
+        lam['mat_id'].append(0)
+
+        # Ply 4
+        lam['thk'].append(0.005)
+        lam['ang'].append(0)
+        lam['mat_id'].append(0)
+
+        Z = clt.assemble_Z(lam)
+
+        returned_Nm = clt.calc_moisture_forces(mat_list, lam, Z, dM=0.007)
+
+        print("\nNm = " + str(returned_Nm))
+        self.fail('Finish this test!')
+
 if __name__ == '__main__':
     unittest.main()
