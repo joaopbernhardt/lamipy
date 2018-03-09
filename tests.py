@@ -277,7 +277,6 @@ class CLTFunctionsTest(unittest.TestCase):
         lam['mat_id'].append(0)
 
         Z = clt.assemble_Z(lam)
-        print(Z)
 
         returned_Nt = clt.calc_thermal_forces(mat_list, lam, Z, dT=-155.6)
         expected_Nt = numpy.array([-33.57, -60.42, 12.83])
