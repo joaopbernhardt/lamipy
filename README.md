@@ -1,8 +1,6 @@
 # lamipy
 Laminated composites engineering simulations in Python.
 
-*Development currently halted while I work in other projects! Send me a message if any help is needed.*
-
 <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/Composite_3d.png" data-canonical-src="https://upload.wikimedia.org/wikipedia/commons/1/13/Composite_3d.png" width="300" height="200" />
 
 ## Brief description:
