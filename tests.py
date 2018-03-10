@@ -2,6 +2,7 @@ import unittest
 import runfailuretest
 import clt
 import numpy
+import time
 
 def assemble_valid_laminate():
     # Valid (but fictitious) material properties
@@ -23,7 +24,7 @@ def assemble_valid_laminate():
      }
 
     # Assembles material list
-    mat = [mat1, []]
+    mat_list = [mat1, []]
 
     # Initializes dictionary of the laminate layup configurations
     # thk is thickness; ang is angle; mat_id is material id
@@ -35,7 +36,17 @@ def assemble_valid_laminate():
         lam["mat_id"].append(0)
     lam["ang"].extend((0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 
-    return lam
+    return (lam, mat_list)
+
+class CLTCompleteTest(unittest.TestCase):
+    def test_basic_valid_laminate(self):
+        initial_time = time.perf_counter()
+        (lam, mat_list) = assemble_valid_laminate()
+        F = [1e6, 0, 0, 0, 0, 0]
+        results = clt.calc_stressCLT(mat_list, lam, F)
+        finish_time = time.perf_counter()
+        exec_time = finish_time - initial_time
+        print("Execution time: {} seconds.".format(exec_time))
 
 class CLTFunctionsTest(unittest.TestCase):
 
@@ -47,13 +58,13 @@ class CLTFunctionsTest(unittest.TestCase):
 
     def test_valid_layup_to_assemble_Z_returns_valid_numpy_array(self):
         """Z_vector returned by the function must always be a np.ndarray"""
-        lam = assemble_valid_laminate()
+        (lam, _) = assemble_valid_laminate()
         Z_vector = clt.assemble_Z(lam)
         self.assertTrue(isinstance(Z_vector, numpy.ndarray))
 
     def test_known_layup_returns_expected_Z_vector(self):
         """Sends a lam with known correct Z_vector and compares to returned"""
-        lam = assemble_valid_laminate()
+        (lam, _) = assemble_valid_laminate()
         Z_vector = clt.assemble_Z(lam)
         Z_vector = [round(z, 6) for z in Z_vector]
         expected_Z_vector = [-5e-03, -4e-03, -3e-03, -2e-03,
@@ -135,7 +146,7 @@ class CLTFunctionsTest(unittest.TestCase):
     def test_assemble_ABD_invalid_input_errors(self):
         """Sends invalid inputs to the function, expects the proper error"""
         valid_mat_list = [{'X':1}, ]
-        valid_lam = assemble_valid_laminate()
+        (valid_lam, _) = assemble_valid_laminate()
         valid_Z = clt.assemble_Z(valid_lam)
 
         self.assertRaises(clt.LaminateLayupError,
@@ -214,7 +225,7 @@ class CLTFunctionsTest(unittest.TestCase):
     def test_calc_thermal_forces_invalid_input_errors(self):
         """Sends invalid inputs to the function, expects the proper error"""
         valid_mat_list = [{'X':1}, ]
-        valid_lam = assemble_valid_laminate()
+        (valid_lam, _) = assemble_valid_laminate()
         valid_Z = clt.assemble_Z(valid_lam)
 
         self.assertRaises(clt.LaminateLayupError,
@@ -291,8 +302,7 @@ class CLTFunctionsTest(unittest.TestCase):
 
     def test_calc_moisture_forces_invalid_input_errors(self):
         """Sends invalid inputs to the function, expects the proper error"""
-        valid_mat_list = [{'X':1}, ]
-        valid_lam = assemble_valid_laminate()
+        (valid_lam, valid_mat_list) = assemble_valid_laminate()
         valid_Z = clt.assemble_Z(valid_lam)
 
         self.assertRaises(clt.LaminateLayupError,
