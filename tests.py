@@ -1,5 +1,7 @@
 import unittest
+from unittest import skip
 import runfailuretest
+import failurecriteria
 import clt
 import numpy
 import time
@@ -376,6 +378,18 @@ class CLTFunctionsTest(unittest.TestCase):
             else:
                 error = rNm/eNm
             self.assertTrue(0.999 < error < 1.001)
+
+class FailureCriteriaTest(unittest.TestCase):
+
+    def test_tsaiwu_2D_invalid_input_errors(self):
+        (lam, mat_list) = assemble_valid_laminate()
+        stress_inf = stress_sup = [None, None, None] * 10
+        self.assertRaises(TypeError, 
+            failurecriteria.tsaiwu_2D,
+            mat_list,
+            lam,
+            stress_inf,
+            stress_sup)
 
 if __name__ == '__main__':
     unittest.main()

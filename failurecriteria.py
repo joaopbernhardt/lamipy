@@ -23,7 +23,6 @@ def tsaiwu_2D(mat_list, lam, stress_inf, stress_sup):
     """ Calculates SF and mode according to Tsai-Wu criterion 
     for the whole laminate.
     """
-
     # Get number of layers
     num = len(lam["ang"])
     fs = {"fs_inf" : [], "fs_sup" : []}

@@ -103,7 +103,7 @@ def TestA():
                                   res["MCS"]["stress"]["inf"], 
                                   res["MCS"]["stress"]["sup"])
 
-    ProgressiveFailureTest(mat, lam, F, delta_T, delta_M)
+    # ProgressiveFailureTest(mat, lam, F, delta_T, delta_M)
 
     pass
 
@@ -207,4 +207,4 @@ def ProgressiveFailureTest(mat, lam, F, dT = 0, dM = 0):
     pass
     
 
-# TestA()
+TestA()
