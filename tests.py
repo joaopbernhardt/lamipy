@@ -1,10 +1,12 @@
 import unittest
 from unittest import skip
+import time
+
 import runfailuretest
 import failurecriteria
 import clt
 import numpy
-import time
+
 
 def assemble_valid_laminate():
     # Valid (but fictitious) material properties
@@ -372,7 +374,7 @@ class CLTFunctionsTest(unittest.TestCase):
         expected_Nm = numpy.array([51.7, 60.4, -4.3])
 
         for rNm, eNm in zip(numpy.nditer(returned_Nm), 
-                              numpy.nditer(expected_Nm)):
+                            numpy.nditer(expected_Nm)):
             if rNm == 0 or eNm == 0:
                 continue
             else:
@@ -390,6 +392,19 @@ class FailureCriteriaTest(unittest.TestCase):
             lam,
             stress_inf,
             stress_sup)
+
+    def test_tsaiwu_2D_known_input_returns_expected_result(self):
+        (lam, mat_list) = assemble_valid_laminate()
+        F = [1e5, 0, 0, 0, 0, 0]
+        clt_results = clt.calc_stressCLT(mat_list, lam, F)
+        sfTsaiWu = failurecriteria.tsaiwu_2D(
+                                mat_list, 
+                                lam, 
+                                clt_results["MCS"]["stress"]["inf"],
+                                clt_results["MCS"]["stress"]["sup"]
+        )
+        self.fail('Finish this test!')
+
 
 if __name__ == '__main__':
     unittest.main()
