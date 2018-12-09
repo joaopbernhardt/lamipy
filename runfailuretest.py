@@ -14,9 +14,11 @@ Joao Paulo Bernhardt - October 2017
 """
 
 import numpy as np
+
 import clt
 import failurecriteria as FC
 from plotresults import PlotResults
+
 
 def TestA():
     """ Tests the implementation.
@@ -58,11 +60,13 @@ def TestA():
     for i in range(12):
         lam["thk"].append(0.127e-3)
         lam["mat_id"].append(0)
+
+    # Some layup options below.
     #lam["ang"].extend((45, -45, 45, -45, 45, -45, -45, 45, -45, 45, -45, 45))
-    #lam["ang"].extend((0, 30, -30, 30, -30, 90, 90, -30, 30, -30, 30, 0))
+    lam["ang"].extend((0, 30, -30, 30, -30, 90, 90, -30, 30, -30, 30, 0))
     #lam["ang"].extend((0, 0, 0, 0, 90, 90, 90, 90, 0, 0, 0, 0))
     #lam["ang"].extend((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-    lam["ang"].extend((45, -45, 0, 90, 0, 90, 90, 0, 90, 0, -45, 45))
+    # lam["ang"].extend((45, -45, 0, 90, 0, 90, 90, 0, 90, 0, -45, 45))
 
     # Vector F with the applied generalized stress (unit N/m / N.m/m)
     F = np.array([  0e2,   # Nx
@@ -103,9 +107,8 @@ def TestA():
                                   res["MCS"]["stress"]["inf"], 
                                   res["MCS"]["stress"]["sup"])
 
-    # ProgressiveFailureTest(mat, lam, F, delta_T, delta_M)
+    ProgressiveFailureTest(mat, lam, F, delta_T, delta_M)
 
-    pass
 
 def ProgressiveFailureTest(mat, lam, F, dT = 0, dM = 0):
     """ Produces the Progressive Failure test and sends for plotting.
@@ -204,7 +207,6 @@ def ProgressiveFailureTest(mat, lam, F, dT = 0, dM = 0):
     plotr.Options(save=True, display=False)
     plotr.ProgAvgStrain()
     plotr.Profile("MCS", 1, "strain", 0)  
-    pass
-    
+
 
 TestA()
