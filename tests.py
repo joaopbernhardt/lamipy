@@ -36,7 +36,7 @@ def assemble_valid_laminate():
 
     # Adds 10 layers of 0.1mm thickness and material id 0 
     for i in range(10):
-        lam["thk"].append(1e-3)
+        lam["thk"].append(1e-4)
         lam["mat_id"].append(0)
     lam["ang"].extend((0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 
@@ -71,9 +71,9 @@ class CLTFunctionsTest(unittest.TestCase):
         (lam, _) = assemble_valid_laminate()
         Z_vector = clt.assemble_Z(lam)
         Z_vector = [round(z, 6) for z in Z_vector]
-        expected_Z_vector = [-5e-03, -4e-03, -3e-03, -2e-03,
-                            -1e-03, 0,  1e-03,  2e-03,
-                             3e-03,  4e-03,  5e-03]
+        expected_Z_vector = [-5e-04, -4e-04, -3e-04, -2e-04,
+                            -1e-04, 0,  1e-04,  2e-04,
+                             3e-04,  4e-04,  5e-04]
         self.assertEqual(Z_vector, expected_Z_vector)
 
     def test_assemble_matrixT_invalid_input_returns_error(self):
