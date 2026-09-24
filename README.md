@@ -12,7 +12,7 @@ Therefore, a composite laminate consists of a material resultant of layers (lami
 The implementation uses the **Classical Laminate Theory (CLT)** for computations. 
 The summary of this theory can be found in: [NASA's Basic Mechanics of Laminated Composite Plates](https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19950009349.pdf), [Prof. W. Stein's document](http://wstein.org/edu/2010/480b/projects/05-lamination_theory/A%20summary%20of%20Classical%20Lamination%20Theory.pdf) and other sources.
 
-Currently lamipy is *not ready for use* due to the lack of verification and validation tests, which will be produced soon.
+lamipy can be installed and run, but it is not ready for engineering use yet. Verification against published examples is still incomplete.
 
 ## Project goals:
 
@@ -30,14 +30,24 @@ Currently lamipy is *not ready for use* due to the lack of verification and vali
 - [ ] Laminate materials simple database
 - [ ] ...
 
-## How to use:
+## How to use
 
-Currently, *lamipy* is **not ready for general usage**. If you want to test the code, here are the steps:
+Install and test with [uv](https://docs.astral.sh/uv/):
 
-*Note: using lamipy requires a python3 environment for executing the **runfailuretest.py** file. It is also required **numpy** and **matplotlib** libraries (both of which are easily encountered in many python distributions).*
-1. Clone this repository;
-1. Edit runfailuretest.py to input the laminate data;
-1. Execute.
+```bash
+uv sync
+uv run pytest
+uv run pip-audit
+uv run lamipy-demo
+```
+
+`uv sync` creates a virtual environment and installs lamipy with NumPy and Matplotlib. `uv run pytest` runs the unit tests. `uv run pip-audit` checks the installed packages against the Python advisory database. `uv run lamipy-demo` runs the progressive-failure example and writes figures under `plots/`. The example layup lives in `lamipy/runfailuretest.py`.
+
+From another environment, install this repository with `pip install .` or `uv pip install .` and call the library directly:
+
+```python
+from lamipy.clt import calc_stressCLT
+```
 
 ## Understanding lamipy:
 

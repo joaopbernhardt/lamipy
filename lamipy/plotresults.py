@@ -15,10 +15,13 @@ OUTPUTS:
 
 Joao Paulo Bernhardt - October 2017
 """
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-import clt
+
+from . import clt
 
 class PlotResults:
     """ Contains functions for setting options and plotting data.
@@ -104,6 +107,7 @@ class PlotResults:
             plt.show()
 
         if self.save:
+            os.makedirs("plots", exist_ok=True)
             fig.savefig("plots/strain_lf.png")
         
         plt.close(fig)
@@ -169,6 +173,7 @@ class PlotResults:
             plt.show()
 
         if self.save:
+            os.makedirs("plots", exist_ok=True)
             fig.savefig("plots/profile.png")
         
         plt.close(fig)

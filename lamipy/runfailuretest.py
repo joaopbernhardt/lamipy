@@ -15,9 +15,9 @@ Joao Paulo Bernhardt - October 2017
 
 import numpy as np
 
-import clt
-import failurecriteria as FC
-from plotresults import PlotResults
+from . import clt
+from . import failurecriteria as FC
+from .plotresults import PlotResults
 
 
 def TestA():
@@ -206,7 +206,13 @@ def ProgressiveFailureTest(mat, lam, F, dT = 0, dM = 0):
     plotr = PlotResults(lam, plot_data, fail_status)
     plotr.Options(save=True, display=False)
     plotr.ProgAvgStrain()
-    plotr.Profile("MCS", 1, "strain", 0)  
+    plotr.Profile("MCS", 1, "strain", 0)
 
 
-TestA()
+def main():
+    """Run the built-in laminate example."""
+    TestA()
+
+
+if __name__ == "__main__":
+    main()

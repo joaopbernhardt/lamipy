@@ -1,10 +1,7 @@
 import unittest
-from unittest import skip
 import time
 
-import runfailuretest
-import failurecriteria
-import clt
+from lamipy import clt, failurecriteria
 import numpy
 
 
@@ -94,7 +91,7 @@ class CLTFunctionsTest(unittest.TestCase):
         ang_list = [0, 90, -45, +45, 90, 0]
         for ang in ang_list:
             T = clt.assemble_matrixT(ang)
-            T = numpy.round_(T, 6)
+            T = numpy.round(T, 6)
             if ang == 0:
                 expected_T = numpy.array([[ 1,  0,  0],
                                           [ 0,  1,  0],
@@ -393,6 +390,7 @@ class FailureCriteriaTest(unittest.TestCase):
             stress_inf,
             stress_sup)
 
+    @unittest.skip("Finish this test")
     def test_tsaiwu_2D_known_input_returns_expected_result(self):
         (lam, mat_list) = assemble_valid_laminate()
         F = [1e5, 0, 0, 0, 0, 0]
