@@ -137,13 +137,15 @@ def calc_thermal_forces(mat_list, lam, Z, fail_list = None, dT = 0):
         mat_prop = mat_list[mat_id]
         ang = lam["ang"][i]        
 
-        #alpha (material coord system) vector
+        # alpha in material coordinates. assemble_matrixT maps laminate
+        # strain onto material strain, so these coefficients transform
+        # with the inverse. The transpose stores half the engineering shear.
         a = [mat_prop["a1"], mat_prop["a2"], 0]
 
         T = assemble_matrixT(ang)
         Ti = numpy.transpose(T)
 
-        a_LCS = numpy.matmul(Ti, a)
+        a_LCS = numpy.linalg.solve(T, a)
 
         # Checks if there's failure list
         if isinstance(fail_list, list):
@@ -180,13 +182,14 @@ def calc_moisture_forces(mat_list, lam, Z, fail_list = None, dM = 0):
         mat_prop = mat_list[mat_id]
         ang = lam["ang"][i]        
 
-        #alpha (material coord system) vector
+        # beta in material coordinates. Same transform as thermal expansion:
+        # the inverse of assemble_matrixT, not its transpose.
         b = [mat_prop["b1"], mat_prop["b2"], 0]
 
         T = assemble_matrixT(ang)
         Ti = numpy.transpose(T)
 
-        b_LCS = numpy.matmul(Ti, b)
+        b_LCS = numpy.linalg.solve(T, b)
 
         # Checks if there's failure list
         if isinstance(fail_list, list):

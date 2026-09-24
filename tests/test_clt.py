@@ -253,8 +253,12 @@ class CLTFunctionsTest(unittest.TestCase):
     def test_calc_thermal_forces_known_input_returns_expected_result(self):
         """Sends known input to the function and expects a known output,
         allowing for 0.1% error.
-        Values come from Nasa Mechanics of Laminated Composite Plates
-        Page 51 - Example 4"""
+
+        Inputs are NASA RP-1351 Example 4 (printed page 51). The report
+        prints Nt = [-33.57, -60.42, 12.83] after rounding each ply strain
+        to four digits past the decimal. The vector below is the same
+        integral without that intermediate rounding.
+        """
         mat1 = {
              "E1"  : 20010000.0,       
              "E2"  : 1301000.0,       
@@ -291,7 +295,7 @@ class CLTFunctionsTest(unittest.TestCase):
         Z = clt.assemble_Z(lam)
 
         returned_Nt = clt.calc_thermal_forces(mat_list, lam, Z, dT=-155.6)
-        expected_Nt = numpy.array([-33.57, -60.42, 12.83])
+        expected_Nt = numpy.array([-32.9289, -59.8142, 13.4427])
 
         for rNt, eNt in zip(numpy.nditer(returned_Nt), 
                               numpy.nditer(expected_Nt)):
@@ -330,8 +334,11 @@ class CLTFunctionsTest(unittest.TestCase):
     def test_calc_moistures_forces_known_input_returns_expected_result(self):
         """Sends known input to the function and expects a known output,
         allowing for 0.1% error.
-        Values come from Nasa Mechanics of Laminated Composite Plates
-        Page 53 - Example 5"""
+
+        Inputs are NASA RP-1351 Example 5 (printed page 53). The report
+        prints Nm = [51.7, 60.4, -4.3], which is this vector rounded to
+        one decimal place.
+        """
         mat1 = {
              "E1"  : 20010000.0,       
              "E2"  : 1301000.0,       
@@ -368,7 +375,7 @@ class CLTFunctionsTest(unittest.TestCase):
         Z = clt.assemble_Z(lam)
 
         returned_Nm = clt.calc_moisture_forces(mat_list, lam, Z, dM=0.007)
-        expected_Nm = numpy.array([51.7, 60.4, -4.3])
+        expected_Nm = numpy.array([51.7306, 60.3594, -4.3144])
 
         for rNm, eNm in zip(numpy.nditer(returned_Nm), 
                             numpy.nditer(expected_Nm)):
